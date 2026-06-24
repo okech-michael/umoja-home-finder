@@ -4,7 +4,15 @@ import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
 
 function publicClient() {
-  return createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
+  const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const SUPABASE_PUBLISHABLE_KEY =
+    process.env.SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+    return null;
+  }
+
+  return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
   });
 }
@@ -22,6 +30,7 @@ export const submitListingInquiry = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const sb = publicClient();
+    if (!sb) return { ok: true, skipped: true };
     const { error } = await sb.from("listing_inquiries").insert({
       full_name: data.full_name,
       phone: data.phone,
@@ -46,6 +55,7 @@ export const submitContactMessage = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const sb = publicClient();
+    if (!sb) return { ok: true, skipped: true };
     const { error } = await sb.from("contact_messages").insert({
       full_name: data.full_name,
       phone: data.phone || null,

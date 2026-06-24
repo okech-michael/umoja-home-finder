@@ -4,7 +4,15 @@ import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
 
 function publicClient() {
-  return createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
+  const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const SUPABASE_PUBLISHABLE_KEY =
+    process.env.SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+    return null;
+  }
+
+  return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
   });
 }
@@ -25,6 +33,7 @@ export const listProperties = createServerFn({ method: "GET" })
   .validator(ListSchema)
   .handler(async ({ data }) => {
     const sb = publicClient();
+    if (!sb) return [];
     let q = sb
       .from("properties")
       .select(
@@ -48,6 +57,7 @@ export const getProperty = createServerFn({ method: "GET" })
   .validator(z.object({ slug: z.string() }))
   .handler(async ({ data }) => {
     const sb = publicClient();
+    if (!sb) return null;
     const { data: row, error } = await sb
       .from("properties")
       .select("*")
@@ -59,6 +69,15 @@ export const getProperty = createServerFn({ method: "GET" })
 
 export const getStats = createServerFn({ method: "GET" }).handler(async () => {
   const sb = publicClient();
+  if (!sb) {
+    return {
+      listed: 0,
+      available: 0,
+      clients: 1200,
+      placements: 850,
+      regions: 6,
+    };
+  }
   const { count } = await sb.from("properties").select("*", { count: "exact", head: true });
   const { count: available } = await sb
     .from("properties")

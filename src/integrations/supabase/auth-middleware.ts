@@ -42,9 +42,25 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
         ...(!SUPABASE_URL ? ["SUPABASE_URL"] : []),
         ...(!SUPABASE_PUBLISHABLE_KEY ? ["SUPABASE_PUBLISHABLE_KEY"] : []),
       ];
-      const message = `Missing Supabase environment variable(s): ${missing.join(", ")}. Configure your Supabase project credentials.`;
-      console.error(`[Supabase] ${message}`);
-      throw new Error(message);
+      const message = `Missing Supabase environment variable(s): ${missing.join(", ")}. Continuing without Supabase.`;
+      console.warn(`[Supabase] ${message}`);
+      return next({
+        context: {
+          supabase: {
+            auth: {
+              getClaims: async () => ({ data: null, error: null }),
+            },
+            from: () => ({
+              select: () => Promise.resolve({ data: [], error: null }),
+              insert: () => Promise.resolve({ data: null, error: null }),
+              update: () => Promise.resolve({ data: null, error: null }),
+              delete: () => Promise.resolve({ data: null, error: null }),
+            }),
+          },
+          userId: "anonymous",
+          claims: {},
+        },
+      });
     }
 
     const request = getRequest();

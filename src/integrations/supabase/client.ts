@@ -45,6 +45,31 @@ function getSupabaseEnv() {
   return { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY };
 }
 
+function createFallbackSupabaseClient() {
+  const noopQuery = () => ({
+    select: () => noopQuery(),
+    insert: () => noopQuery(),
+    update: () => noopQuery(),
+    delete: () => noopQuery(),
+    eq: () => noopQuery(),
+    order: () => noopQuery(),
+    limit: () => noopQuery(),
+    contains: () => noopQuery(),
+    gte: () => noopQuery(),
+    lte: () => noopQuery(),
+    maybeSingle: async () => ({ data: null, error: null }),
+    single: async () => ({ data: null, error: null }),
+  });
+
+  return {
+    auth: {
+      onAuthStateChange: () => ({ subscription: { unsubscribe() {} } }),
+      getClaims: async () => ({ data: null, error: null }),
+    },
+    from: () => noopQuery(),
+  } as any;
+}
+
 function createSupabaseClient() {
   const { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } = getSupabaseEnv();
 
@@ -53,9 +78,9 @@ function createSupabaseClient() {
       ...(!SUPABASE_URL ? ["SUPABASE_URL"] : []),
       ...(!SUPABASE_PUBLISHABLE_KEY ? ["SUPABASE_PUBLISHABLE_KEY"] : []),
     ];
-    const message = `Missing Supabase environment variable(s): ${missing.join(", ")}. Configure your Supabase project credentials.`;
-    console.error(`[Supabase] ${message}`);
-    throw new Error(message);
+    const message = `Missing Supabase environment variable(s): ${missing.join(", ")}. Continuing without Supabase.`;
+    console.warn(`[Supabase] ${message}`);
+    return createFallbackSupabaseClient();
   }
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {

@@ -32,6 +32,24 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
   };
 }
 
+function createFallbackSupabaseAdminClient() {
+  const noopQuery = () => ({
+    select: () => noopQuery(),
+    insert: () => noopQuery(),
+    update: () => noopQuery(),
+    delete: () => noopQuery(),
+    eq: () => noopQuery(),
+    order: () => noopQuery(),
+    limit: () => noopQuery(),
+    maybeSingle: async () => ({ data: null, error: null }),
+    single: async () => ({ data: null, error: null }),
+  });
+
+  return {
+    from: () => noopQuery(),
+  } as any;
+}
+
 function createSupabaseAdminClient() {
   const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
   const SUPABASE_SERVICE_ROLE_KEY =
@@ -42,9 +60,9 @@ function createSupabaseAdminClient() {
       ...(!SUPABASE_URL ? ["SUPABASE_URL"] : []),
       ...(!SUPABASE_SERVICE_ROLE_KEY ? ["SUPABASE_SERVICE_ROLE_KEY"] : []),
     ];
-    const message = `Missing Supabase environment variable(s): ${missing.join(", ")}. Configure your Supabase project credentials.`;
-    console.error(`[Supabase] ${message}`);
-    throw new Error(message);
+    const message = `Missing Supabase environment variable(s): ${missing.join(", ")}. Continuing without Supabase.`;
+    console.warn(`[Supabase] ${message}`);
+    return createFallbackSupabaseAdminClient();
   }
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
