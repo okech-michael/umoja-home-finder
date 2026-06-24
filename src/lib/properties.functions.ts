@@ -22,7 +22,7 @@ const ListSchema = z
   .partial();
 
 export const listProperties = createServerFn({ method: "GET" })
-  .inputValidator((input: unknown) => ListSchema.parse(input ?? {}))
+  .validator(ListSchema)
   .handler(async ({ data }) => {
     const sb = publicClient();
     let q = sb
@@ -45,7 +45,7 @@ export const listProperties = createServerFn({ method: "GET" })
   });
 
 export const getProperty = createServerFn({ method: "GET" })
-  .inputValidator((input: unknown) => z.object({ slug: z.string() }).parse(input))
+  .validator(z.object({ slug: z.string() }))
   .handler(async ({ data }) => {
     const sb = publicClient();
     const { data: row, error } = await sb

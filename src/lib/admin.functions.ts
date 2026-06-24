@@ -54,7 +54,7 @@ export const adminListProperties = createServerFn({ method: "GET" })
 
 export const adminCreateProperty = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => PropertyInput.parse(input))
+  .validator(PropertyInput)
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
     const { data: row, error } = await context.supabase
@@ -68,9 +68,7 @@ export const adminCreateProperty = createServerFn({ method: "POST" })
 
 export const adminUpdateProperty = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
-    z.object({ id: z.string().uuid(), patch: PropertyInput.partial() }).parse(input),
-  )
+  .validator(z.object({ id: z.string().uuid(), patch: PropertyInput.partial() }))
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
     const { error } = await context.supabase
@@ -83,7 +81,7 @@ export const adminUpdateProperty = createServerFn({ method: "POST" })
 
 export const adminDeleteProperty = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .validator(z.object({ id: z.string().uuid() }))
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
     const { error } = await context.supabase.from("properties").delete().eq("id", data.id);
