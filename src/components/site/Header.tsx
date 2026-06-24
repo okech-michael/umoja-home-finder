@@ -33,7 +33,7 @@ export function Header() {
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6">
         <Link to="/" className="flex items-center gap-2 shrink-0">
-          <img src={logo} alt="Umoja Housing Agency" className="h-12 w-auto sm:h-14 md:h-16" />
+          <img src={logo} alt="Umoja Housing Agency" className="h-14 w-auto sm:h-16 md:h-20" />
         </Link>
         <nav className="hidden lg:flex items-center gap-1">
           {nav.map((n) => (
