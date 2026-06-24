@@ -1,7 +1,22 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { ArrowRight, Search, MapPin, Home, CheckCircle2, ShieldCheck, Zap, Wallet, Users, HeadphonesIcon, Sparkles, Quote, Phone, MessageCircle } from "lucide-react";
+import {
+  ArrowRight,
+  Search,
+  MapPin,
+  Home,
+  CheckCircle2,
+  ShieldCheck,
+  Zap,
+  Wallet,
+  Users,
+  HeadphonesIcon,
+  Sparkles,
+  Quote,
+  Phone,
+  MessageCircle,
+} from "lucide-react";
 import { listProperties, getStats } from "@/lib/properties.functions";
 import { PropertyCard } from "@/components/site/PropertyCard";
 import { Counter } from "@/components/site/Counter";
@@ -32,9 +47,20 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Umoja Housing Agency — Houses for Rent in Kisii & Gusii Region" },
-      { name: "description", content: "Browse verified houses across Kisii, Nyamira, Keroka, Ogembo and Suneka. Book viewings, contact agents, and secure your next home with Umoja Housing Agency." },
-      { property: "og:title", content: "Umoja Housing Agency — Finding Your Next Home Has Never Been Easier" },
-      { property: "og:description", content: "Verified houses across the Gusii Region. Book viewings, contact trusted agents, and move in with confidence." },
+      {
+        name: "description",
+        content:
+          "Browse verified houses across Kisii, Nyamira, Keroka, Ogembo and Suneka. Book viewings, contact agents, and secure your next home with Umoja Housing Agency.",
+      },
+      {
+        property: "og:title",
+        content: "Umoja Housing Agency — Finding Your Next Home Has Never Been Easier",
+      },
+      {
+        property: "og:description",
+        content:
+          "Verified houses across the Gusii Region. Book viewings, contact trusted agents, and move in with confidence.",
+      },
       { property: "og:image", content: "/__l5e/assets-v1/placeholder/og.jpg" },
     ],
   }),
@@ -68,17 +94,53 @@ const steps = [
   { n: "06", title: "Move In", text: "Sign the lease and settle into your new home." },
 ];
 const reasons = [
-  { icon: ShieldCheck, title: "Verified Properties", text: "Every listing is inspected and confirmed by our team." },
-  { icon: Users, title: "Trusted Agents", text: "Local agents who know the neighborhood inside out." },
-  { icon: Zap, title: "Fast House Search", text: "Powerful filters get you to the right home in minutes." },
-  { icon: Wallet, title: "Secure M-Pesa Payments", text: "Pay viewing fees instantly with full receipts." },
-  { icon: Home, title: "Wide Property Network", text: "Single rooms to bungalows across the Gusii Region." },
-  { icon: HeadphonesIcon, title: "Professional Support", text: "Friendly help every step from search to move-in." },
+  {
+    icon: ShieldCheck,
+    title: "Verified Properties",
+    text: "Every listing is inspected and confirmed by our team.",
+  },
+  {
+    icon: Users,
+    title: "Trusted Agents",
+    text: "Local agents who know the neighborhood inside out.",
+  },
+  {
+    icon: Zap,
+    title: "Fast House Search",
+    text: "Powerful filters get you to the right home in minutes.",
+  },
+  {
+    icon: Wallet,
+    title: "Secure M-Pesa Payments",
+    text: "Pay viewing fees instantly with full receipts.",
+  },
+  {
+    icon: Home,
+    title: "Wide Property Network",
+    text: "Single rooms to bungalows across the Gusii Region.",
+  },
+  {
+    icon: HeadphonesIcon,
+    title: "Professional Support",
+    text: "Friendly help every step from search to move-in.",
+  },
 ];
 const testimonials = [
-  { name: "Mercy A.", role: "Tenant, Kisii Town", text: "Umoja made finding a bedsitter so easy. The agent was on time and the house was exactly as listed." },
-  { name: "David O.", role: "Landlord, Suneka", text: "I listed two units and they were both occupied within a week. Highly professional team." },
-  { name: "Faith K.", role: "Tenant, Nyamira", text: "I love how transparent everything was. Paid the viewing fee, met the agent, and moved in the same week." },
+  {
+    name: "Mercy A.",
+    role: "Tenant, Kisii Town",
+    text: "Umoja made finding a bedsitter so easy. The agent was on time and the house was exactly as listed.",
+  },
+  {
+    name: "David O.",
+    role: "Landlord, Suneka",
+    text: "I listed two units and they were both occupied within a week. Highly professional team.",
+  },
+  {
+    name: "Faith K.",
+    role: "Tenant, Nyamira",
+    text: "I love how transparent everything was. Paid the viewing fee, met the agent, and moved in the same week.",
+  },
 ];
 
 function Index() {
@@ -109,7 +171,11 @@ function Index() {
               key={src}
               className={`absolute inset-0 transition-opacity duration-[2000ms] ${i === slide ? "opacity-100" : "opacity-0"}`}
             >
-              <img src={src} alt="Premium home" className="h-full w-full object-cover animate-slow-zoom" />
+              <img
+                src={src}
+                alt="Premium home"
+                className="h-full w-full object-cover animate-slow-zoom"
+              />
             </div>
           ))}
           <div className="absolute inset-0 bg-gradient-to-b from-secondary/40 via-secondary/30 to-secondary/80" />
@@ -123,16 +189,27 @@ function Index() {
             </span>
             <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] text-balance">
               Finding Your Next Home Has Never Been{" "}
-              <span className="bg-gradient-to-r from-primary to-orange-300 bg-clip-text text-transparent">Easier</span>
+              <span className="bg-gradient-to-r from-primary to-orange-300 bg-clip-text text-transparent">
+                Easier
+              </span>
             </h1>
             <p className="text-lg sm:text-xl text-white/85 max-w-2xl">
-              Browse verified houses across Kisii and the Gusii Region. Book viewings, contact agents, and secure your next home with {SITE.name}.
+              Browse verified houses across Kisii and the Gusii Region. Book viewings, contact
+              agents, and secure your next home with {SITE.name}.
             </p>
             <div className="flex flex-wrap gap-3 pt-2">
-              <Link to="/properties" className="inline-flex items-center gap-2 rounded-full gradient-brand px-7 py-4 text-base font-semibold shadow-lift hover:-translate-y-0.5 transition">
+              <Link
+                to="/properties"
+                className="inline-flex items-center gap-2 rounded-full gradient-brand px-7 py-4 text-base font-semibold shadow-lift hover:-translate-y-0.5 transition"
+              >
                 Browse Houses <ArrowRight className="h-4 w-4" />
               </Link>
-              <a href={whatsappLink()} target="_blank" rel="noopener" className="inline-flex items-center gap-2 rounded-full glass px-7 py-4 text-base font-semibold text-foreground hover:bg-white transition">
+              <a
+                href={whatsappLink()}
+                target="_blank"
+                rel="noopener"
+                className="inline-flex items-center gap-2 rounded-full glass px-7 py-4 text-base font-semibold text-foreground hover:bg-white transition"
+              >
                 <MessageCircle className="h-4 w-4" /> Contact Agent
               </a>
             </div>
@@ -147,21 +224,38 @@ function Index() {
           >
             <label className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-background/80">
               <MapPin className="h-4 w-4 text-primary" />
-              <select name="location" className="flex-1 bg-transparent text-sm font-medium text-foreground outline-none">
+              <select
+                name="location"
+                className="flex-1 bg-transparent text-sm font-medium text-foreground outline-none"
+              >
                 <option value="">All locations</option>
-                {SITE.regions.map((r) => <option key={r} value={r}>{r}</option>)}
+                {SITE.regions.map((r) => (
+                  <option key={r} value={r}>
+                    {r}
+                  </option>
+                ))}
               </select>
             </label>
             <label className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-background/80">
               <Home className="h-4 w-4 text-primary" />
-              <select name="propertyType" className="flex-1 bg-transparent text-sm font-medium text-foreground outline-none">
+              <select
+                name="propertyType"
+                className="flex-1 bg-transparent text-sm font-medium text-foreground outline-none"
+              >
                 <option value="">Any type</option>
-                {SITE.propertyTypes.map((t) => <option key={t} value={t}>{t}</option>)}
+                {SITE.propertyTypes.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
               </select>
             </label>
             <label className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-background/80">
               <Wallet className="h-4 w-4 text-primary" />
-              <select name="maxRent" className="flex-1 bg-transparent text-sm font-medium text-foreground outline-none">
+              <select
+                name="maxRent"
+                className="flex-1 bg-transparent text-sm font-medium text-foreground outline-none"
+              >
                 <option value="">Any budget</option>
                 <option value="5000">Up to KSh 5,000</option>
                 <option value="10000">Up to KSh 10,000</option>
@@ -170,7 +264,10 @@ function Index() {
                 <option value="100000">Up to KSh 100,000</option>
               </select>
             </label>
-            <button type="submit" className="rounded-2xl gradient-brand px-6 py-3 text-sm font-semibold text-white flex items-center justify-center gap-2 hover:shadow-lift transition">
+            <button
+              type="submit"
+              className="rounded-2xl gradient-brand px-6 py-3 text-sm font-semibold text-white flex items-center justify-center gap-2 hover:shadow-lift transition"
+            >
               <Search className="h-4 w-4" /> Search
             </button>
           </form>
@@ -198,7 +295,10 @@ function Index() {
             { n: stats.placements, s: "+", label: "Successful Placements" },
             { n: stats.regions, s: "", label: "Regions Covered" },
           ].map((s, i) => (
-            <div key={i} className="text-center p-6 rounded-3xl bg-card shadow-soft hover:shadow-lift transition">
+            <div
+              key={i}
+              className="text-center p-6 rounded-3xl bg-card shadow-soft hover:shadow-lift transition"
+            >
               <div className="font-display text-4xl md:text-5xl font-bold text-secondary">
                 <Counter to={s.n} suffix={s.s} />
               </div>
@@ -213,12 +313,17 @@ function Index() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="flex flex-wrap items-end justify-between gap-4 mb-12">
             <div className="max-w-2xl">
-              <span className="text-xs uppercase tracking-widest font-semibold text-primary">Featured Properties</span>
+              <span className="text-xs uppercase tracking-widest font-semibold text-primary">
+                Featured Properties
+              </span>
               <h2 className="mt-2 font-display text-4xl md:text-5xl font-bold text-balance">
                 Hand-picked homes ready for viewing
               </h2>
             </div>
-            <Link to="/properties" className="inline-flex items-center gap-2 text-sm font-semibold text-secondary hover:text-primary transition">
+            <Link
+              to="/properties"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-secondary hover:text-primary transition"
+            >
               View all <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -228,7 +333,9 @@ function Index() {
             </div>
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {showcase.map((p, i) => <PropertyCard key={p.id} p={p} index={i} />)}
+              {showcase.map((p, i) => (
+                <PropertyCard key={p.id} p={p} index={i} />
+              ))}
             </div>
           )}
         </div>
@@ -238,8 +345,12 @@ function Index() {
       <section className="py-24 bg-surface">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="text-center max-w-2xl mx-auto mb-12">
-            <span className="text-xs uppercase tracking-widest font-semibold text-primary">Browse by Type</span>
-            <h2 className="mt-2 font-display text-4xl md:text-5xl font-bold">Find the right kind of home</h2>
+            <span className="text-xs uppercase tracking-widest font-semibold text-primary">
+              Browse by Type
+            </span>
+            <h2 className="mt-2 font-display text-4xl md:text-5xl font-bold">
+              Find the right kind of home
+            </h2>
           </div>
           <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
             {categories.map((c, i) => (
@@ -250,7 +361,12 @@ function Index() {
                 className="group relative aspect-[4/5] overflow-hidden rounded-3xl shadow-soft hover:shadow-lift transition animate-fade-up"
                 style={{ animationDelay: `${i * 50}ms` }}
               >
-                <img src={c.img} alt={c.name} loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                <img
+                  src={c.img}
+                  alt={c.name}
+                  loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-secondary via-secondary/30 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
                   <h3 className="font-display text-lg font-semibold">{c.name}</h3>
@@ -268,13 +384,23 @@ function Index() {
       <section className="py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="text-xs uppercase tracking-widest font-semibold text-primary">How It Works</span>
-            <h2 className="mt-2 font-display text-4xl md:text-5xl font-bold">From browse to move-in</h2>
+            <span className="text-xs uppercase tracking-widest font-semibold text-primary">
+              How It Works
+            </span>
+            <h2 className="mt-2 font-display text-4xl md:text-5xl font-bold">
+              From browse to move-in
+            </h2>
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {steps.map((s, i) => (
-              <div key={s.n} className="group relative p-8 rounded-3xl bg-card border shadow-soft hover:shadow-lift hover:-translate-y-1 transition animate-fade-up" style={{ animationDelay: `${i * 80}ms` }}>
-                <div className="font-display text-5xl font-bold text-primary/30 group-hover:text-primary transition">{s.n}</div>
+              <div
+                key={s.n}
+                className="group relative p-8 rounded-3xl bg-card border shadow-soft hover:shadow-lift hover:-translate-y-1 transition animate-fade-up"
+                style={{ animationDelay: `${i * 80}ms` }}
+              >
+                <div className="font-display text-5xl font-bold text-primary/30 group-hover:text-primary transition">
+                  {s.n}
+                </div>
                 <h3 className="mt-3 font-display text-xl font-semibold">{s.title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{s.text}</p>
               </div>
@@ -289,12 +415,19 @@ function Index() {
         <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-primary/20 blur-3xl" />
         <div className="mx-auto max-w-7xl px-4 sm:px-6 relative">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="text-xs uppercase tracking-widest font-semibold text-primary">Why Choose Us</span>
-            <h2 className="mt-2 font-display text-4xl md:text-5xl font-bold">Built on trust and local knowledge</h2>
+            <span className="text-xs uppercase tracking-widest font-semibold text-primary">
+              Why Choose Us
+            </span>
+            <h2 className="mt-2 font-display text-4xl md:text-5xl font-bold">
+              Built on trust and local knowledge
+            </h2>
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {reasons.map((r) => (
-              <div key={r.title} className="group glass-dark rounded-3xl p-8 hover:bg-white/10 transition">
+              <div
+                key={r.title}
+                className="group glass-dark rounded-3xl p-8 hover:bg-white/10 transition"
+              >
                 <div className="h-14 w-14 rounded-2xl gradient-brand flex items-center justify-center shadow-glow">
                   <r.icon className="h-6 w-6 text-white" />
                 </div>
@@ -309,8 +442,12 @@ function Index() {
       {/* TESTIMONIALS */}
       <section className="py-24 bg-surface">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 text-center">
-          <span className="text-xs uppercase tracking-widest font-semibold text-primary">Testimonials</span>
-          <h2 className="mt-2 font-display text-4xl md:text-5xl font-bold">Loved by tenants & landlords</h2>
+          <span className="text-xs uppercase tracking-widest font-semibold text-primary">
+            Testimonials
+          </span>
+          <h2 className="mt-2 font-display text-4xl md:text-5xl font-bold">
+            Loved by tenants & landlords
+          </h2>
           <div className="mt-12 relative h-56">
             {testimonials.map((t, i) => (
               <div
@@ -318,7 +455,9 @@ function Index() {
                 className={`absolute inset-0 transition-all duration-700 ${i === tIndex ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"}`}
               >
                 <Quote className="h-10 w-10 mx-auto text-primary/40" />
-                <p className="mt-4 font-display text-xl md:text-2xl text-foreground italic text-balance">"{t.text}"</p>
+                <p className="mt-4 font-display text-xl md:text-2xl text-foreground italic text-balance">
+                  "{t.text}"
+                </p>
                 <div className="mt-6">
                   <div className="font-semibold">{t.name}</div>
                   <div className="text-sm text-muted-foreground">{t.role}</div>
@@ -328,7 +467,12 @@ function Index() {
           </div>
           <div className="flex justify-center gap-2 mt-8">
             {testimonials.map((_, i) => (
-              <button key={i} onClick={() => setTIndex(i)} className={`h-1.5 rounded-full transition-all ${i === tIndex ? "w-10 bg-primary" : "w-4 bg-border"}`} aria-label={`Testimonial ${i + 1}`} />
+              <button
+                key={i}
+                onClick={() => setTIndex(i)}
+                className={`h-1.5 rounded-full transition-all ${i === tIndex ? "w-10 bg-primary" : "w-4 bg-border"}`}
+                aria-label={`Testimonial ${i + 1}`}
+              />
             ))}
           </div>
         </div>
@@ -341,17 +485,32 @@ function Index() {
             <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-primary/30 blur-3xl" />
             <div className="relative grid md:grid-cols-[1.4fr_1fr] gap-10 items-center">
               <div>
-                <h2 className="font-display text-4xl md:text-5xl font-bold text-balance">Ready to find your next home?</h2>
-                <p className="mt-4 text-white/80 max-w-xl">Talk to our agency now — call, WhatsApp, or list your property in minutes.</p>
+                <h2 className="font-display text-4xl md:text-5xl font-bold text-balance">
+                  Ready to find your next home?
+                </h2>
+                <p className="mt-4 text-white/80 max-w-xl">
+                  Talk to our agency now — call, WhatsApp, or list your property in minutes.
+                </p>
               </div>
               <div className="flex flex-col gap-3">
-                <a href={telLink()} className="inline-flex items-center justify-center gap-2 rounded-full bg-white text-secondary px-6 py-4 font-semibold hover:bg-white/90 transition">
+                <a
+                  href={telLink()}
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-white text-secondary px-6 py-4 font-semibold hover:bg-white/90 transition"
+                >
                   <Phone className="h-4 w-4" /> Call Agency
                 </a>
-                <a href={whatsappLink()} target="_blank" rel="noopener" className="inline-flex items-center justify-center gap-2 rounded-full gradient-brand px-6 py-4 font-semibold hover:shadow-lift transition">
+                <a
+                  href={whatsappLink()}
+                  target="_blank"
+                  rel="noopener"
+                  className="inline-flex items-center justify-center gap-2 rounded-full gradient-brand px-6 py-4 font-semibold hover:shadow-lift transition"
+                >
                   <MessageCircle className="h-4 w-4" /> WhatsApp Agency
                 </a>
-                <Link to="/list-property" className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white/30 px-6 py-4 font-semibold hover:bg-white/10 transition">
+                <Link
+                  to="/list-property"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white/30 px-6 py-4 font-semibold hover:bg-white/10 transition"
+                >
                   <CheckCircle2 className="h-4 w-4" /> List Your Property
                 </Link>
               </div>

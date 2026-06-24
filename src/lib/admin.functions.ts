@@ -15,7 +15,11 @@ async function requireAdmin(ctx: { supabase: any; userId: string }) {
 
 const PropertyInput = z.object({
   title: z.string().min(2).max(200),
-  slug: z.string().min(2).max(200).regex(/^[a-z0-9-]+$/, "Use lowercase letters, numbers, and hyphens"),
+  slug: z
+    .string()
+    .min(2)
+    .max(200)
+    .regex(/^[a-z0-9-]+$/, "Use lowercase letters, numbers, and hyphens"),
   description: z.string().max(5000).optional().nullable(),
   property_type: z.string().min(2).max(50),
   location: z.string().min(2).max(100),
@@ -69,7 +73,10 @@ export const adminUpdateProperty = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
-    const { error } = await context.supabase.from("properties").update(data.patch).eq("id", data.id);
+    const { error } = await context.supabase
+      .from("properties")
+      .update(data.patch)
+      .eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });

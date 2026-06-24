@@ -10,7 +10,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
+import { reportError } from "../lib/error-reporting";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { FloatingActions } from "@/components/site/FloatingActions";
@@ -43,7 +43,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    reportError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
 
   return (
@@ -83,10 +83,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Umoja Housing Agency — Houses for Rent in Kisii & Gusii Region" },
-      { name: "description", content: "Find verified houses, bedsitters, and apartments to rent across Kisii, Nyamira, Keroka, Ogembo and Suneka. Book viewings and meet trusted agents with Umoja Housing Agency." },
+      {
+        name: "description",
+        content:
+          "Find verified houses, bedsitters, and apartments to rent across Kisii, Nyamira, Keroka, Ogembo and Suneka. Book viewings and meet trusted agents with Umoja Housing Agency.",
+      },
       { name: "author", content: "Umoja Housing Agency" },
-      { property: "og:title", content: "Umoja Housing Agency — Finding Your Next Home Has Never Been Easier" },
-      { property: "og:description", content: "Browse verified rental houses across Kisii and the Gusii Region. Book viewings and contact trusted agents." },
+      {
+        property: "og:title",
+        content: "Umoja Housing Agency — Finding Your Next Home Has Never Been Easier",
+      },
+      {
+        property: "og:description",
+        content:
+          "Browse verified rental houses across Kisii and the Gusii Region. Book viewings and contact trusted agents.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "theme-color", content: "#0B4F7D" },

@@ -4,11 +4,9 @@ import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
 
 function publicClient() {
-  return createClient<Database>(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_PUBLISHABLE_KEY!,
-    { auth: { storage: undefined, persistSession: false, autoRefreshToken: false } },
-  );
+  return createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
+    auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
+  });
 }
 
 const ListSchema = z
@@ -29,7 +27,9 @@ export const listProperties = createServerFn({ method: "GET" })
     const sb = publicClient();
     let q = sb
       .from("properties")
-      .select("id,slug,title,property_type,location,region,rent,deposit,bedrooms,bathrooms,amenities,cover_image,images,available,featured,viewing_fee")
+      .select(
+        "id,slug,title,property_type,location,region,rent,deposit,bedrooms,bathrooms,amenities,cover_image,images,available,featured,viewing_fee",
+      )
       .order("featured", { ascending: false })
       .order("created_at", { ascending: false })
       .limit(data.limit ?? 24);

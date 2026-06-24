@@ -19,7 +19,10 @@ type P = {
 };
 
 export function PropertyCard({ p, index = 0 }: { p: P; index?: number }) {
-  const img = p.cover_image || p.images?.[0] || "https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800";
+  const img =
+    p.cover_image ||
+    p.images?.[0] ||
+    "https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800";
   return (
     <Link
       to="/properties/$slug"
@@ -69,19 +72,28 @@ export function PropertyCard({ p, index = 0 }: { p: P; index?: number }) {
           <div className="mt-3 flex items-center justify-between">
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               {(p.bedrooms ?? 0) > 0 && (
-                <span className="flex items-center gap-1"><Bed className="h-4 w-4" /> {p.bedrooms}</span>
+                <span className="flex items-center gap-1">
+                  <Bed className="h-4 w-4" /> {p.bedrooms}
+                </span>
               )}
-              <span className="flex items-center gap-1"><Bath className="h-4 w-4" /> {p.bathrooms ?? 1}</span>
+              <span className="flex items-center gap-1">
+                <Bath className="h-4 w-4" /> {p.bathrooms ?? 1}
+              </span>
             </div>
             <div className="text-right">
               <div className="text-xs text-muted-foreground">From</div>
-              <div className="font-display text-lg font-bold text-secondary">{formatKsh(p.rent)}</div>
+              <div className="font-display text-lg font-bold text-secondary">
+                {formatKsh(p.rent)}
+              </div>
             </div>
           </div>
           <div className="mt-4 flex items-center justify-between pt-4 border-t border-border">
             <div className="flex flex-wrap gap-1">
               {(p.amenities ?? []).slice(0, 3).map((a) => (
-                <span key={a} className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                <span
+                  key={a}
+                  className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground bg-muted px-2 py-0.5 rounded-full"
+                >
                   {a}
                 </span>
               ))}

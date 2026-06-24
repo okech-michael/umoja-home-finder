@@ -7,7 +7,16 @@ export const SITE = {
   whatsapp: "254715842716",
   email: "info@umojahousing.co.ke",
   address: "Kisii Town, Gusii Region, Kenya",
-  regions: ["Kisii", "Nyamira", "Keroka", "Ogembo", "Suneka", "Kisii University", "Daraja Mbili", "Jogoo"],
+  regions: [
+    "Kisii",
+    "Nyamira",
+    "Keroka",
+    "Ogembo",
+    "Suneka",
+    "Kisii University",
+    "Daraja Mbili",
+    "Jogoo",
+  ],
   propertyTypes: [
     "Single Room",
     "Bedsitter",
