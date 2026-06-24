@@ -12,7 +12,7 @@ const relatedQuery = () =>
   queryOptions({ queryKey: ["properties", "related"], queryFn: () => listProperties({ data: { limit: 6 } }) });
 
 export const Route = createFileRoute("/properties/$slug")({
-  head: ({ loaderData }) => ({
+  head: ({ loaderData }: { loaderData?: any }) => ({
     meta: [
       { title: loaderData?.title ? `${loaderData.title} — Umoja Housing Agency` : "Property — Umoja Housing Agency" },
       { name: "description", content: loaderData?.description?.slice(0, 160) ?? "Verified property listing in the Gusii Region." },

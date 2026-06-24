@@ -120,7 +120,7 @@ function Admin() {
             { label: "Available", v: stats.available, icon: BarChart3 },
             { label: "Featured", v: stats.featured, icon: BarChart3 },
             { label: "Listing Inquiries", v: stats.inquiries, icon: Inbox },
-          ].map((s) => (
+          ].map((s: { label: string; v: number; icon: any }) => (
             <div key={s.label} className="rounded-2xl bg-card p-5 shadow-soft">
               <s.icon className="h-5 w-5 text-primary" />
               <div className="mt-2 text-2xl font-bold font-display">{s.v}</div>
