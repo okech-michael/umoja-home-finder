@@ -238,14 +238,14 @@ function Admin() {
 }
 
 function PropertyForm({ initial, onCancel, onSubmit, saving }: { initial: any; onCancel: () => void; onSubmit: (d: any) => void; saving: boolean }) {
-  const [imageInput, setImageInput] = useState((initial?.images ?? []).join("\n"));
+  const [imageInput, setImageInput] = useState<string>(((initial?.images ?? []) as string[]).join("\n"));
   const [amenities, setAmenities] = useState<string[]>(initial?.amenities ?? []);
 
   function handle(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     const title = String(fd.get("title") || "");
-    const images = imageInput.split("\n").map((s) => s.trim()).filter(Boolean);
+    const images = imageInput.split("\n").map((s: string) => s.trim()).filter(Boolean);
     onSubmit({
       title,
       slug: String(fd.get("slug") || slugify(title)),
