@@ -67,6 +67,26 @@ export const getProperty = createServerFn({ method: "GET" })
     return row;
   });
 
+export const recordPropertyView = createServerFn({ method: "POST" })
+  .validator(z.object({ slug: z.string() }))
+  .handler(async ({ data }) => {
+    const sb = publicClient();
+    if (!sb) return { ok: true };
+    const { data: row, error: fetchError } = await sb
+      .from("properties")
+      .select("id,view_count")
+      .eq("slug", data.slug)
+      .maybeSingle();
+    if (fetchError) throw new Error(fetchError.message);
+    if (!row) return { ok: true };
+    const { error } = await sb
+      .from("properties")
+      .update({ view_count: Number(row.view_count ?? 0) + 1 })
+      .eq("id", row.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 export const getStats = createServerFn({ method: "GET" }).handler(async () => {
   const sb = publicClient();
   if (!sb) {

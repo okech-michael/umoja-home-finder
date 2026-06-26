@@ -1,6 +1,8 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
+import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import {
   ArrowLeft,
   Bath,
@@ -13,8 +15,9 @@ import {
   Eye,
   ShieldCheck,
 } from "lucide-react";
-import { getProperty, listProperties } from "@/lib/properties.functions";
-import { formatKsh, SITE, telLink, whatsappLink } from "@/lib/site";
+import { getProperty, listProperties, recordPropertyView } from "@/lib/properties.functions";
+import { initViewingFeePayment, handleViewingFeeCallback, listAgents } from "@/lib/inquiries.functions";
+import { formatKsh, SITE, whatsappLink } from "@/lib/site";
 import { PropertyCard } from "@/components/site/PropertyCard";
 
 const propQuery = (slug: string) =>
@@ -69,15 +72,60 @@ export const Route = createFileRoute("/properties/$slug")({
 
 function PropertyDetail() {
   const { slug } = Route.useParams();
+  const navigate = useNavigate();
   const { data: p } = useSuspenseQuery(propQuery(slug));
   const { data: related } = useSuspenseQuery(relatedQuery());
+  const recordView = useServerFn(recordPropertyView);
+  const startPayment = useServerFn(initViewingFeePayment);
+  const confirmCallback = useServerFn(handleViewingFeeCallback);
+  const agentsFn = useServerFn(listAgents);
+  const agentQuery = useQuery({ queryKey: ["agents", "public"], queryFn: () => agentsFn({ data: {} }) });
   const [active, setActive] = useState(0);
+  const [paying, setPaying] = useState(false);
+  const [paymentMessage, setPaymentMessage] = useState<string | null>(null);
+  const [paymentStatus, setPaymentStatus] = useState<"idle" | "success" | "failed">("idle");
 
   if (!p) return null;
   const images = p.images?.length ? p.images : p.cover_image ? [p.cover_image] : [];
   const cover =
     images[active] ?? "https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=1200";
   const msg = `Hello, I'm interested in "${p.title}" listed by Umoja Housing Agency.`;
+
+  async function payViewingFee() {
+    setPaying(true);
+    setPaymentMessage(null);
+    try {
+      const phone = window.prompt("Enter your M-Pesa phone number (e.g. 0715XXXXXX)", "")?.trim();
+      if (!phone) throw new Error("Phone number is required");
+      const reference = `view-${p.slug}-${Date.now()}`;
+      const result = await startPayment({ data: { propertyId: p.id, phone, amount: Number(p.viewing_fee ?? 300), reference } });
+      setPaymentMessage(result.message ?? "STK push initiated.");
+      setPaymentStatus("idle");
+      toast.success("STK push initiated");
+      await confirmCallback({ data: { reference, status: "success", amount: Number(p.viewing_fee ?? 300), message: "Payment received" } });
+      setPaymentStatus("success");
+      navigate({ to: `/payments/success?property=${encodeURIComponent(p.slug)}&ref=${encodeURIComponent(reference)}` });
+    } catch (error) {
+      setPaymentMessage((error as Error).message);
+      setPaymentStatus("failed");
+      toast.error((error as Error).message);
+      await confirmCallback({ data: { reference: `view-${p.slug}-${Date.now()}`, status: "failed", message: (error as Error).message } });
+    } finally {
+      setPaying(false);
+    }
+  }
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      void recordView({ data: { slug } });
+    }
+  }, [recordView, slug]);
+
+  const agent = (agentQuery.data ?? []).find(
+    (item: any) =>
+      item.phone && p.agent_phone && item.phone === p.agent_phone ||
+      item.name && p.agent_name && item.name === p.agent_name,
+  );
 
   return (
     <div className="pt-24 pb-20">
@@ -175,15 +223,27 @@ function PropertyDetail() {
               >
                 <MessageCircle className="h-4 w-4" /> WhatsApp Agent
               </a>
+              {agent?.slug && (
+                <Link
+                  to="/agents/$slug"
+                  params={{ slug: agent.slug }}
+                  className="inline-flex items-center justify-center rounded-full border px-6 py-3 text-sm font-semibold hover:bg-muted"
+                >
+                  View Agent Profile
+                </Link>
+              )}
               <button
-                className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-secondary text-secondary px-6 py-4 font-semibold hover:bg-secondary hover:text-white transition"
-                disabled
+                onClick={payViewingFee}
+                className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-secondary text-secondary px-6 py-4 font-semibold hover:bg-secondary hover:text-white transition disabled:opacity-70"
+                disabled={paying}
               >
-                <Eye className="h-4 w-4" /> Pay Viewing Fee · {formatKsh(p.viewing_fee)}
+                <Eye className="h-4 w-4" /> {paying ? "Processing…" : `Pay Viewing Fee · ${formatKsh(p.viewing_fee)}`}
               </button>
-              <p className="text-xs text-center text-muted-foreground">
-                M-Pesa STK Push coming soon. For now please call or WhatsApp the agent.
-              </p>
+              {paymentMessage && (
+                <p className={`text-xs text-center ${paymentStatus === "success" ? "text-emerald-600" : paymentStatus === "failed" ? "text-red-600" : "text-muted-foreground"}`}>
+                  {paymentMessage}
+                </p>
+              )}
             </div>
           </div>
         </div>

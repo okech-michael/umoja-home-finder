@@ -66,3 +66,84 @@ export const submitContactMessage = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+export const initViewingFeePayment = createServerFn({ method: "POST" })
+  .validator(
+    z.object({
+      propertyId: z.string().uuid(),
+      phone: z.string().min(9).max(15),
+      amount: z.coerce.number().min(1),
+      reference: z.string().min(3).max(120),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const sb = publicClient();
+    if (!sb) return { ok: true, skipped: true };
+
+    const { error: insertError } = await sb.from("viewing_payments").insert({
+      property_id: data.propertyId,
+      phone: data.phone,
+      amount: data.amount,
+      status: "pending",
+      reference: data.reference,
+      provider: "mpesa",
+    });
+
+    if (insertError) throw new Error(insertError.message);
+
+    return {
+      ok: true,
+      message: "STK push initiated. Complete the prompt on your phone to confirm payment.",
+      reference: data.reference,
+    };
+  });
+
+export const handleViewingFeeCallback = createServerFn({ method: "POST" })
+  .validator(
+    z.object({
+      reference: z.string(),
+      status: z.enum(["success", "failed"]),
+      amount: z.coerce.number().optional(),
+      message: z.string().optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const sb = publicClient();
+    if (!sb) return { ok: true };
+    const status = data.status === "success" ? "succeeded" : "failed";
+    const { error } = await sb
+      .from("viewing_payments")
+      .update({ status, provider_message: data.message ?? null, updated_at: new Date().toISOString() })
+      .eq("reference", data.reference);
+    if (error) throw new Error(error.message);
+    return { ok: true, status };
+  });
+
+export const uploadPropertyImage = createServerFn({ method: "POST" })
+  .validator(z.object({ fileName: z.string(), contentType: z.string(), file: z.string() }))
+  .handler(async ({ data }) => {
+    const sb = publicClient();
+    if (!sb) return { ok: true, skipped: true };
+    const bucket = "property-images";
+    const decoded = Buffer.from(data.file, "base64");
+    const path = `properties/${Date.now()}-${data.fileName}`;
+    const { error } = await sb.storage.from(bucket).upload(path, decoded, {
+      contentType: data.contentType,
+      upsert: false,
+    });
+    if (error) throw new Error(error.message);
+    const { data: publicUrlData } = sb.storage.from(bucket).getPublicUrl(path);
+    return { ok: true, url: publicUrlData.publicUrl };
+  });
+
+export const listAgents = createServerFn({ method: "GET" })
+  .validator(z.object({ slug: z.string().optional() }).partial())
+  .handler(async ({ data }) => {
+    const sb = publicClient();
+    if (!sb) return [];
+    let q = sb.from("agents").select("*").eq("is_active", true).order("created_at", { ascending: false });
+    if (data.slug) q = q.eq("slug", data.slug);
+    const { data: rows, error } = await q;
+    if (error) throw new Error(error.message);
+    return rows ?? [];
+  });

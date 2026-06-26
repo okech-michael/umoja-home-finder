@@ -18,6 +18,9 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PropertiesSlugRouteImport } from './routes/properties.$slug'
+import { Route as PaymentsSuccessRouteImport } from './routes/payments.success'
+import { Route as PaymentsFailureRouteImport } from './routes/payments.failure'
+import { Route as AgentsSlugRouteImport } from './routes/agents.$slug'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -64,6 +67,21 @@ const PropertiesSlugRoute = PropertiesSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => PropertiesRoute,
 } as any)
+const PaymentsSuccessRoute = PaymentsSuccessRouteImport.update({
+  id: '/payments/success',
+  path: '/payments/success',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentsFailureRoute = PaymentsFailureRouteImport.update({
+  id: '/payments/failure',
+  path: '/payments/failure',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AgentsSlugRoute = AgentsSlugRouteImport.update({
+  id: '/agents/$slug',
+  path: '/agents/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -79,6 +97,9 @@ export interface FileRoutesByFullPath {
   '/properties': typeof PropertiesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/agents/$slug': typeof AgentsSlugRoute
+  '/payments/failure': typeof PaymentsFailureRoute
+  '/payments/success': typeof PaymentsSuccessRoute
   '/properties/$slug': typeof PropertiesSlugRoute
 }
 export interface FileRoutesByTo {
@@ -90,6 +111,9 @@ export interface FileRoutesByTo {
   '/properties': typeof PropertiesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/agents/$slug': typeof AgentsSlugRoute
+  '/payments/failure': typeof PaymentsFailureRoute
+  '/payments/success': typeof PaymentsSuccessRoute
   '/properties/$slug': typeof PropertiesSlugRoute
 }
 export interface FileRoutesById {
@@ -103,6 +127,9 @@ export interface FileRoutesById {
   '/properties': typeof PropertiesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/agents/$slug': typeof AgentsSlugRoute
+  '/payments/failure': typeof PaymentsFailureRoute
+  '/payments/success': typeof PaymentsSuccessRoute
   '/properties/$slug': typeof PropertiesSlugRoute
 }
 export interface FileRouteTypes {
@@ -116,6 +143,9 @@ export interface FileRouteTypes {
     | '/properties'
     | '/sitemap.xml'
     | '/admin'
+    | '/agents/$slug'
+    | '/payments/failure'
+    | '/payments/success'
     | '/properties/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -127,6 +157,9 @@ export interface FileRouteTypes {
     | '/properties'
     | '/sitemap.xml'
     | '/admin'
+    | '/agents/$slug'
+    | '/payments/failure'
+    | '/payments/success'
     | '/properties/$slug'
   id:
     | '__root__'
@@ -139,6 +172,9 @@ export interface FileRouteTypes {
     | '/properties'
     | '/sitemap.xml'
     | '/_authenticated/admin'
+    | '/agents/$slug'
+    | '/payments/failure'
+    | '/payments/success'
     | '/properties/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -151,6 +187,9 @@ export interface RootRouteChildren {
   ListPropertyRoute: typeof ListPropertyRoute
   PropertiesRoute: typeof PropertiesRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  AgentsSlugRoute: typeof AgentsSlugRoute
+  PaymentsFailureRoute: typeof PaymentsFailureRoute
+  PaymentsSuccessRoute: typeof PaymentsSuccessRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -218,6 +257,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PropertiesSlugRouteImport
       parentRoute: typeof PropertiesRoute
     }
+    '/payments/success': {
+      id: '/payments/success'
+      path: '/payments/success'
+      fullPath: '/payments/success'
+      preLoaderRoute: typeof PaymentsSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payments/failure': {
+      id: '/payments/failure'
+      path: '/payments/failure'
+      fullPath: '/payments/failure'
+      preLoaderRoute: typeof PaymentsFailureRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/agents/$slug': {
+      id: '/agents/$slug'
+      path: '/agents/$slug'
+      fullPath: '/agents/$slug'
+      preLoaderRoute: typeof AgentsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -260,6 +320,9 @@ const rootRouteChildren: RootRouteChildren = {
   ListPropertyRoute: ListPropertyRoute,
   PropertiesRoute: PropertiesRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  AgentsSlugRoute: AgentsSlugRoute,
+  PaymentsFailureRoute: PaymentsFailureRoute,
+  PaymentsSuccessRoute: PaymentsSuccessRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

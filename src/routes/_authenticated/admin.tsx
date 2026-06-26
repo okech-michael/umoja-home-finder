@@ -13,6 +13,12 @@ import {
   BarChart3,
   Inbox,
   ShieldAlert,
+  TrendingUp,
+  DollarSign,
+  MapPin,
+  Users,
+  Camera,
+  UploadCloud,
 } from "lucide-react";
 import {
   adminListProperties,
@@ -22,7 +28,13 @@ import {
   checkIsAdmin,
   adminListInquiries,
   adminListMessages,
+  adminGetAnalytics,
+  adminListAgents,
+  adminCreateAgent,
+  adminUpdateAgent,
+  adminDeleteAgent,
 } from "@/lib/admin.functions";
+import { uploadPropertyImage } from "@/lib/inquiries.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { SITE, formatKsh } from "@/lib/site";
 
@@ -52,8 +64,14 @@ function Admin() {
   const checkAdmin = useServerFn(checkIsAdmin);
   const listInq = useServerFn(adminListInquiries);
   const listMsg = useServerFn(adminListMessages);
+  const analyticsFn = useServerFn(adminGetAnalytics);
+  const listAgents = useServerFn(adminListAgents);
+  const createAgent = useServerFn(adminCreateAgent);
+  const updateAgent = useServerFn(adminUpdateAgent);
+  const deleteAgent = useServerFn(adminDeleteAgent);
+  const uploadImage = useServerFn(uploadPropertyImage);
 
-  const [tab, setTab] = useState<"properties" | "inquiries" | "messages">("properties");
+  const [tab, setTab] = useState<"properties" | "inquiries" | "messages" | "analytics" | "agents">("properties");
 
   const adminQ = useQuery({ queryKey: ["isAdmin"], queryFn: () => checkAdmin() });
   const props = useQuery({
@@ -71,9 +89,21 @@ function Admin() {
     queryFn: () => listMsg(),
     enabled: tab === "messages" && !!adminQ.data?.isAdmin,
   });
+  const analytics = useQuery({
+    queryKey: ["admin", "analytics"],
+    queryFn: () => analyticsFn(),
+    enabled: tab === "analytics" && !!adminQ.data?.isAdmin,
+  });
+  const agents = useQuery({
+    queryKey: ["admin", "agents"],
+    queryFn: () => listAgents(),
+    enabled: tab === "agents" && !!adminQ.data?.isAdmin,
+  });
 
   const [editing, setEditing] = useState<any | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [agentEditing, setAgentEditing] = useState<any | null>(null);
+  const [showAgentForm, setShowAgentForm] = useState(false);
 
   const save = useMutation({
     mutationFn: async (data: any) => {
@@ -94,6 +124,27 @@ function Admin() {
     onSuccess: () => {
       toast.success("Property deleted");
       qc.invalidateQueries({ queryKey: ["admin", "props"] });
+    },
+    onError: (e) => toast.error((e as Error).message),
+  });
+  const saveAgent = useMutation({
+    mutationFn: async (data: any) => {
+      if (agentEditing?.id) return updateAgent({ data: { id: agentEditing.id, patch: data } });
+      return createAgent({ data });
+    },
+    onSuccess: () => {
+      toast.success(agentEditing?.id ? "Agent updated" : "Agent created");
+      qc.invalidateQueries({ queryKey: ["admin", "agents"] });
+      setShowAgentForm(false);
+      setAgentEditing(null);
+    },
+    onError: (e) => toast.error((e as Error).message),
+  });
+  const removeAgent = useMutation({
+    mutationFn: (id: string) => deleteAgent({ data: { id } }),
+    onSuccess: () => {
+      toast.success("Agent deleted");
+      qc.invalidateQueries({ queryKey: ["admin", "agents"] });
     },
     onError: (e) => toast.error((e as Error).message),
   });
@@ -136,6 +187,9 @@ function Admin() {
     available: properties.filter((p: any) => p.available).length,
     featured: properties.filter((p: any) => p.featured).length,
     inquiries: inquiries.data?.length ?? 0,
+    views: analytics.data?.totalViews ?? 0,
+    leads: analytics.data?.leadsGenerated ?? 0,
+    revenue: analytics.data?.paymentsReceived ?? 0,
   };
 
   return (
@@ -162,6 +216,8 @@ function Admin() {
             { label: "Available", v: stats.available, icon: BarChart3 },
             { label: "Featured", v: stats.featured, icon: BarChart3 },
             { label: "Listing Inquiries", v: stats.inquiries, icon: Inbox },
+            { label: "Property Views", v: stats.views, icon: TrendingUp },
+            { label: "Payments", v: stats.revenue, icon: DollarSign },
           ].map((s: { label: string; v: number; icon: any }) => (
             <div key={s.label} className="rounded-2xl bg-card p-5 shadow-soft">
               <s.icon className="h-5 w-5 text-primary" />
@@ -176,6 +232,8 @@ function Admin() {
             { id: "properties", label: "Properties", icon: Home },
             { id: "inquiries", label: "Listing Inquiries", icon: Inbox },
             { id: "messages", label: "Contact Messages", icon: MessageSquare },
+            { id: "analytics", label: "Analytics", icon: BarChart3 },
+            { id: "agents", label: "Agents", icon: Users },
           ].map((t) => (
             <button
               key={t.id}
@@ -186,6 +244,108 @@ function Admin() {
             </button>
           ))}
         </div>
+
+        {tab === "analytics" && (
+          <div className="space-y-6">
+            <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
+              {[
+                { label: "Property views", value: analytics.data?.totalViews ?? 0, icon: TrendingUp },
+                { label: "Leads generated", value: analytics.data?.leadsGenerated ?? 0, icon: Inbox },
+                { label: "Payments received", value: formatKsh(analytics.data?.paymentsReceived ?? 0), icon: DollarSign },
+                { label: "Conversion rate", value: `${analytics.data?.conversionRate ?? "0.0"}%`, icon: BarChart3 },
+              ].map((item) => (
+                <div key={item.label} className="rounded-2xl bg-card p-5 shadow-soft">
+                  <item.icon className="h-5 w-5 text-primary" />
+                  <div className="mt-3 text-2xl font-bold font-display">{item.value}</div>
+                  <div className="text-xs text-muted-foreground">{item.label}</div>
+                </div>
+              ))}
+            </div>
+            <div className="grid xl:grid-cols-[1.1fr_0.9fr] gap-6">
+              <div className="rounded-3xl bg-card p-6 shadow-soft">
+                <h2 className="font-display text-xl font-bold">Conversion statistics</h2>
+                <div className="mt-4 space-y-3">
+                  <div className="flex items-center justify-between rounded-2xl border p-3">
+                    <span className="text-sm text-muted-foreground">View-to-lead conversion</span>
+                    <span className="font-semibold">{analytics.data?.conversionRate ?? "0.0"}%</span>
+                  </div>
+                  <div className="flex items-center justify-between rounded-2xl border p-3">
+                    <span className="text-sm text-muted-foreground">Viewing fee conversion</span>
+                    <span className="font-semibold">{analytics.data?.paymentConversion ?? "0.0"}%</span>
+                  </div>
+                  <div className="flex items-center justify-between rounded-2xl border p-3">
+                    <span className="text-sm text-muted-foreground">Available listings</span>
+                    <span className="font-semibold">{analytics.data?.availableProperties ?? 0}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="rounded-3xl bg-card p-6 shadow-soft">
+                <h2 className="font-display text-xl font-bold">Popular locations</h2>
+                <div className="mt-4 space-y-3">
+                  {(analytics.data?.popularLocations ?? []).map((item: any) => (
+                    <div key={item.name} className="flex items-center justify-between rounded-2xl border p-3">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-primary" />
+                        <span className="font-medium">{item.name}</span>
+                      </div>
+                      <span className="text-sm text-muted-foreground">{item.count} listings</span>
+                    </div>
+                  ))}
+                  {!analytics.data?.popularLocations?.length && (
+                    <div className="text-sm text-muted-foreground">No location data yet.</div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {tab === "agents" && (
+          <div className="rounded-3xl bg-card p-6 shadow-soft">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-display text-xl font-bold">Agents</h2>
+              <button
+                onClick={() => {
+                  setAgentEditing(null);
+                  setShowAgentForm(true);
+                }}
+                className="inline-flex items-center gap-2 rounded-full gradient-brand text-white px-4 py-2 text-sm font-semibold hover:shadow-lift transition"
+              >
+                <Plus className="h-4 w-4" /> New Agent
+              </button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="text-left text-xs uppercase tracking-wider text-muted-foreground border-b">
+                  <tr>
+                    <th className="py-2 pr-3">Name</th>
+                    <th className="py-2 pr-3">Phone</th>
+                    <th className="py-2 pr-3">Status</th>
+                    <th className="py-2 pr-3">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(agents.data ?? []).map((agent: any) => (
+                    <tr key={agent.id} className="border-b last:border-0 hover:bg-muted/40">
+                      <td className="py-3 pr-3 font-semibold">{agent.name}</td>
+                      <td className="py-3 pr-3">{agent.phone || "—"}</td>
+                      <td className="py-3 pr-3">
+                        <span className={`text-xs rounded-full px-2 py-0.5 ${agent.is_active ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
+                          {agent.is_active ? "Active" : "Inactive"}
+                        </span>
+                      </td>
+                      <td className="py-3 pr-3 flex gap-2">
+                        <button onClick={() => { setAgentEditing(agent); setShowAgentForm(true); }} className="p-2 rounded-lg hover:bg-muted"><Pencil className="h-4 w-4" /></button>
+                        <button onClick={() => confirm(`Delete "${agent.name}"?`) && removeAgent.mutate(agent.id)} className="p-2 rounded-lg hover:bg-red-50 text-red-600"><Trash2 className="h-4 w-4" /></button>
+                      </td>
+                    </tr>
+                  ))}
+                  {!agents.data?.length && <tr><td colSpan={4} className="py-10 text-center text-muted-foreground">No agents yet.</td></tr>}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
         {tab === "properties" && (
           <div className="rounded-3xl bg-card p-6 shadow-soft">
@@ -330,6 +490,18 @@ function Admin() {
             saving={save.isPending}
           />
         )}
+
+        {showAgentForm && (
+          <AgentForm
+            initial={agentEditing}
+            onCancel={() => {
+              setShowAgentForm(false);
+              setAgentEditing(null);
+            }}
+            onSubmit={(d) => saveAgent.mutate(d)}
+            saving={saveAgent.isPending}
+          />
+        )}
       </div>
     </div>
   );
@@ -346,10 +518,40 @@ function PropertyForm({
   onSubmit: (d: any) => void;
   saving: boolean;
 }) {
+  const uploadImage = useServerFn(uploadPropertyImage);
   const [imageInput, setImageInput] = useState<string>(
     ((initial?.images ?? []) as string[]).join("\n"),
   );
   const [amenities, setAmenities] = useState<string[]>(initial?.amenities ?? []);
+  const [uploading, setUploading] = useState(false);
+
+  async function handleUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const result = reader.result as string;
+        const base64 = result.split(",")[1];
+        const res = await uploadImage({
+          data: {
+            fileName: file.name,
+            contentType: file.type || "image/jpeg",
+            file: base64,
+          },
+        });
+        const nextValues = [res.url, ...imageInput.split("\n").filter(Boolean)].filter(Boolean);
+        setImageInput(nextValues.join("\n"));
+        toast.success("Image uploaded");
+        setUploading(false);
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      setUploading(false);
+      toast.error((error as Error).message);
+    }
+  }
 
   function handle(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -477,6 +679,19 @@ function PropertyForm({
             placeholder="https://..."
             className="mt-1 w-full rounded-xl border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
           />
+          <div className="mt-3 rounded-2xl border border-dashed p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <div className="font-semibold flex items-center gap-2"><Camera className="h-4 w-4 text-primary" /> Upload gallery image</div>
+                <p className="text-xs text-muted-foreground">Images are stored in Supabase Storage and used in the property gallery.</p>
+              </div>
+              <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border px-3 py-2 text-sm font-semibold hover:bg-muted">
+                <UploadCloud className="h-4 w-4" />
+                {uploading ? "Uploading…" : "Choose file"}
+                <input type="file" accept="image/*" className="hidden" onChange={handleUpload} />
+              </label>
+            </div>
+          </div>
         </div>
         <div>
           <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -523,6 +738,68 @@ function PropertyForm({
           >
             {saving ? "Saving…" : "Save"}
           </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+function AgentForm({
+  initial,
+  onCancel,
+  onSubmit,
+  saving,
+}: {
+  initial: any;
+  onCancel: () => void;
+  onSubmit: (d: any) => void;
+  saving: boolean;
+}) {
+  function handle(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    onSubmit({
+      name: String(fd.get("name") || ""),
+      slug: String(fd.get("slug") || slugify(String(fd.get("name") || "agent"))),
+      email: String(fd.get("email") || ""),
+      phone: String(fd.get("phone") || ""),
+      whatsapp: String(fd.get("whatsapp") || ""),
+      bio: String(fd.get("bio") || ""),
+      specialties: String(fd.get("specialties") || "")
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean),
+      avatar_url: String(fd.get("avatar_url") || ""),
+      is_active: fd.get("is_active") === "on",
+    });
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur flex items-center justify-center p-4 overflow-auto">
+      <form onSubmit={handle} className="w-full max-w-2xl bg-card rounded-3xl p-6 shadow-lift my-8 space-y-4">
+        <h3 className="font-display text-2xl font-bold">{initial?.id ? "Edit agent" : "New agent"}</h3>
+        <div className="grid sm:grid-cols-2 gap-3">
+          <Field label="Name" name="name" defaultValue={initial?.name} required />
+          <Field label="Slug" name="slug" defaultValue={initial?.slug} placeholder="auto-generated" />
+          <Field label="Email" name="email" type="email" defaultValue={initial?.email} />
+          <Field label="Phone" name="phone" defaultValue={initial?.phone} />
+          <Field label="WhatsApp" name="whatsapp" defaultValue={initial?.whatsapp} />
+          <Field label="Avatar URL" name="avatar_url" defaultValue={initial?.avatar_url} />
+        </div>
+        <div>
+          <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Specialties</label>
+          <input name="specialties" defaultValue={(initial?.specialties ?? []).join(", ")} className="mt-1 w-full rounded-xl border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary" />
+        </div>
+        <div>
+          <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Bio</label>
+          <textarea name="bio" rows={4} defaultValue={initial?.bio ?? ""} className="mt-1 w-full rounded-xl border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary" />
+        </div>
+        <label className="inline-flex items-center gap-2 text-sm">
+          <input type="checkbox" name="is_active" defaultChecked={initial?.is_active ?? true} /> Active
+        </label>
+        <div className="flex justify-end gap-2 pt-2">
+          <button type="button" onClick={onCancel} className="rounded-full border px-5 py-2.5 text-sm font-semibold hover:bg-muted">Cancel</button>
+          <button disabled={saving} className="rounded-full gradient-brand text-white px-6 py-2.5 text-sm font-semibold hover:shadow-lift transition disabled:opacity-60">{saving ? "Saving…" : "Save"}</button>
         </div>
       </form>
     </div>
