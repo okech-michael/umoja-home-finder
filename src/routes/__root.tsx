@@ -101,6 +101,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "theme-color", content: "#0B4F7D" },
+      { property: "og:title", content: "Umoja Housing Agency — Houses for Rent in Kisii & Gusii Region" },
+      { name: "twitter:title", content: "Umoja Housing Agency — Houses for Rent in Kisii & Gusii Region" },
+      { name: "description", content: "Umoja Home Finder is a modern property platform for discovering and listing homes in the Gusii Region." },
+      { property: "og:description", content: "Umoja Home Finder is a modern property platform for discovering and listing homes in the Gusii Region." },
+      { name: "twitter:description", content: "Umoja Home Finder is a modern property platform for discovering and listing homes in the Gusii Region." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b8c3563e-3a65-49c1-a674-a733b3c7b09e/id-preview-448cb875--59c3e68c-5141-4453-97b6-a160f4de928b.lovable.app-1782321842967.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b8c3563e-3a65-49c1-a674-a733b3c7b09e/id-preview-448cb875--59c3e68c-5141-4453-97b6-a160f4de928b.lovable.app-1782321842967.png" },
     ],
     links: [
       {
